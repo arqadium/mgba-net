@@ -1,0 +1,4 @@
+
+TCP test ROM and associated test TCP socket server in Python.
+
+This is used to test the functionality of mGBA-NET.

@@ -33,6 +33,17 @@ enum {
 	JOYSTAT_RECV_BIT = 2,
 };
 
+enum GBANetMode {
+	NETMODE_IDLE = 0,
+	NETMODE_PARSE,
+	NETMODE_SEND,
+	NETMODE_RECV,
+	NETMODE_DUPLEX,
+	NETMODE_ESTAB,
+	NETMODE_DNS,
+	MAX_NETMODE
+};
+
 DECL_BITFIELD(GBASIONormal, uint16_t);
 DECL_BIT(GBASIONormal, Sc, 0);
 DECL_BIT(GBASIONormal, InternalSc, 1);
@@ -56,9 +67,19 @@ struct GBASIODriverSet {
 	struct GBASIODriver* joybus;
 };
 
+struct GBANet {
+	uint8_t cmd[255]; /* max domain name + 2 bytes for cmd & term */
+	size_t cmd_i, in_i, out_i;
+	enum GBANetMode mode;
+	uint32_t ip, crc;
+	uint16_t port, len, len_out;
+	int sock_fd;
+};
+
 struct GBASIO {
 	struct GBA* p;
 
+	struct GBANet net;
 	enum GBASIOMode mode;
 	struct GBASIODriverSet drivers;
 	struct GBASIODriver* activeDriver;
@@ -77,6 +98,9 @@ void GBASIOSetDriver(struct GBASIO* sio, struct GBASIODriver* driver, enum GBASI
 void GBASIOWriteRCNT(struct GBASIO* sio, uint16_t value);
 void GBASIOWriteSIOCNT(struct GBASIO* sio, uint16_t value);
 uint16_t GBASIOWriteRegister(struct GBASIO* sio, uint32_t address, uint16_t value);
+
+uint16_t GBASIOReadSIODATA8( struct GBASIO* sio );
+void GBASIOWriteSIODATA8( struct GBASIO* sio, uint16_t value );
 
 CXX_GUARD_END
 

@@ -516,6 +516,9 @@ void GBAIOWrite(struct GBA* gba, uint32_t address, uint16_t value) {
 			break;
 
 		// SIO
+		case REG_SIODATA8:
+			GBASIOWriteSIODATA8(&gba->sio, value);
+			break;
 		case REG_SIOCNT:
 			GBASIOWriteSIOCNT(&gba->sio, value);
 			break;
@@ -527,7 +530,6 @@ void GBAIOWrite(struct GBA* gba, uint32_t address, uint16_t value) {
 		case REG_JOY_TRANS_HI:
 			gba->memory.io[REG_JOYSTAT >> 1] |= JOYSTAT_TRANS_BIT;
 			// Fall through
-		case REG_SIOMLT_SEND:
 		case REG_JOYCNT:
 		case REG_JOYSTAT:
 		case REG_JOY_RECV_LO:
@@ -831,6 +833,9 @@ uint16_t GBAIORead(struct GBA* gba, uint32_t address) {
 	case REG_POSTFLG:
 		mLOG(GBA_IO, STUB, "Stub I/O register read: %03x", address);
 		break;
+	case REG_SIODATA8:
+		return GBASIOReadSIODATA8( &gba->sio );
+		break;
 	case REG_SOUND1CNT_LO:
 	case REG_SOUND1CNT_HI:
 	case REG_SOUND1CNT_X:
@@ -881,7 +886,6 @@ uint16_t GBAIORead(struct GBA* gba, uint32_t address) {
 	case REG_SIOMULTI1:
 	case REG_SIOMULTI2:
 	case REG_SIOMULTI3:
-	case REG_SIOMLT_SEND:
 	case REG_JOYCNT:
 	case REG_JOY_TRANS_LO:
 	case REG_JOY_TRANS_HI:
