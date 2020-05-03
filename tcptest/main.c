@@ -3,6 +3,7 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+typedef volatile u8 vu8;
 typedef volatile u16 vu16;
 
 enum
@@ -16,6 +17,29 @@ static u8 sample[0x10] = {
 	0xFE, 0xFE, 0xFA, 0xFA,
 	0x99, 0x88, 0x66, 0x11
 };
+
+struct rcpt_f
+{
+	u32 crc;
+	u16 len;
+} __attribute__((packed));
+
+struct rcpt_b
+{
+	u8 b[6];
+};
+
+struct rcpt
+{
+	union
+	{
+		struct rcpt_b b;
+		struct rcpt_f f;
+	};
+};
+
+static struct rcpt rcpt;
+static u8 buf[0x10] = {0};
 
 static u8 sample_chk[4] = { 0xE9, 0xC2, 0x68, 0x18 };
 
@@ -79,6 +103,17 @@ int main( void )
 	for(i = 0; i < 0x10; ++i)
 	{
 		*(vu16*)SIODATA8 = sample[i];
+	}
+
+	/* magic words! */
+	*(vu16*)SIODATA8 = 0x89;
+
+	/* recv data */
+	*(vu16*)SIODATA8 = 0x03;
+
+	for(i = 0; i < 6; ++i)
+	{
+		rcpt.b[i] = *(vu8*)SIODATA8;
 	}
 
 	for(;;);
